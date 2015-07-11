@@ -1,4 +1,3 @@
-#puts "hello world!"
 #imports
 require 'date'
 load 'Holidays.rb'
@@ -59,7 +58,7 @@ class Calender
 			startDay = 1 
 		elsif @dayOfWeek.to_i < startDay
 			startDay = startDay - @dayOfWeek.to_i()+ 1
-		elsif @dayOfWeek.to_i > startDay  
+		else  
 			startDay = 1 + 7 - (@dayOfWeek.to_i() - startDay).abs()
 		end
 
@@ -92,7 +91,6 @@ class Calender
 				else
 					print dayCount.to_s()  
 					if @holidays and @holidays[dayCount]
-						#puts @holidays
 						print legends[legendCount].to_s()+'   ' 
 						legendCount+=1
 					else 
@@ -111,7 +109,7 @@ class Calender
 		if @holidays
 			puts "\nLegends: "
 			for i in 0..@holidays.length-1 
-				puts legends[i].to_s() + ' => ' + @holidays.values[i].to_s()
+				puts legends[i].to_s() + ' : ' + @holidays.values[i].to_s()
 			end
 		end
 
