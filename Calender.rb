@@ -20,6 +20,8 @@ class Calender
 	end
 
 	def Calender.getDaysInMonth(month, year)
+
+		puts month
 		return 29 if month == 2 and Date.new(year).leap?
 		return @@daysInMonth[month]
 	end
@@ -37,24 +39,34 @@ class Calender
 
 	#prints the calender
 	def printCalender()
-		puts "\n\t " + Calender.mapMonth(@state.mon) 
 		masterCount = 1
 		dayCount = 1
 		totalDays = Calender.getDaysInMonth(@state.mon-1, @state.year)
 		
+		prevMonth = @state << 1
+		prevMonthDays = Calender.getDaysInMonth(prevMonth.mon-1, prevMonth.year)-@state.cwday + 2
+		temp =1
+
 		#printing month in console
+		puts "\n\t " + Calender.mapMonth(@state.mon)
 		for i in 0..4 
 			for j in 0..6 
 				if masterCount < @state.cwday
 					masterCount+=1
-					print '   '
+					print prevMonthDays 
+					prevMonthDays += 1
+					print '* '
 					next
+				elsif if dayCount > totalDays
+					print temp
+					print '*  '
+					temp += 1	
+				end
 				else
 					print dayCount
 					print ' ' if dayCount<10
-			  	print ' '
+			  	print '  '
 					dayCount +=1
-				break if dayCount > totalDays
 				end
 			end
 			break if dayCount > totalDays
