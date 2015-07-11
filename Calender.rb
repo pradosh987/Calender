@@ -8,10 +8,15 @@ class Calender
 
 	@@daysInMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30,31]
 
+	@@days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+
+	attr_writer :dayOfWeek
+
 	#constructor
 	def initialize()
 		@state = Date.today
 		@state = Date.new(@state.year, @state.mon,1)
+		@dayOfWeek = 1
 	end
 
 	#class methods
@@ -20,21 +25,16 @@ class Calender
 	end
 
 	def Calender.getDaysInMonth(month, year)
-
-		puts month
 		return 29 if month == 2 and Date.new(year).leap?
 		return @@daysInMonth[month]
 	end
 
 	#instance methods
-	#changes state to next month
-	def nextMonth()
-		@state = @state << -1
-	end
-
-	#changes state to previous month
-	def previousMonth()
-		@state = @state << 1
+	#changes internal state of Calender by specified month 
+	#+ve i increments month
+	#-vw i decrements month
+	def decrementMonth(i)
+		@state = @state << i
 	end
 
 	#prints the calender
@@ -43,29 +43,45 @@ class Calender
 		dayCount = 1
 		totalDays = Calender.getDaysInMonth(@state.mon-1, @state.year)
 		
+		#printing month in 
+		puts "\n\t " + Calender.mapMonth(@state.mon) + ' ' + @state.year.to_s()
+		puts "\n"
+
+		startDay = @state.cwday
+		if startDay == @dayOfWeek.to_i()
+			startDay = 1 
+		elsif @dayOfWeek.to_i < startDay
+			startDay = startDay - @dayOfWeek.to_i()+ 1
+		elsif @dayOfWeek.to_i > startDay  
+			startDay = 1 + 7 - (@dayOfWeek.to_i() - startDay).abs()
+		end
+
 		prevMonth = @state << 1
-		prevMonthDays = Calender.getDaysInMonth(prevMonth.mon-1, prevMonth.year)-@state.cwday + 2
+		prevMonthDays = Calender.getDaysInMonth(prevMonth.mon-1, prevMonth.year)- startDay + 2
 		temp =1
 
-		#printing month in console
-		puts "\n\t " + Calender.mapMonth(@state.mon)
-		for i in 0..4 
+		#print days
+		t=@dayOfWeek.to_i() -1
+		for i in 0..6
+			t = 0 if t > 6
+			print @@days[t].to_s() + ' ' 
+			t+=1
+		end
+		print "\n"
+		for i in 0..5 
 			for j in 0..6 
-				if masterCount < @state.cwday
+				if masterCount < startDay
 					masterCount+=1
-					print prevMonthDays 
+					print prevMonthDays.to_s() + '* ' 
 					prevMonthDays += 1
-					print '* '
 					next
 				elsif if dayCount > totalDays
-					print temp
-					print '*  '
+					print temp.to_s() + '* '
 					temp += 1	
 				end
 				else
-					print dayCount
+					print dayCount.to_s() + '  '
 					print ' ' if dayCount<10
-			  	print '  '
 					dayCount +=1
 				end
 			end
