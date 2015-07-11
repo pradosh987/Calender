@@ -1,5 +1,6 @@
 #imports
 require 'date'
+require 'optparse'
 load 'Holidays.rb'
 
 class Calender
@@ -13,11 +14,19 @@ class Calender
 	attr_writer :dayOfWeek
 
 	#constructor
-	def initialize()
-		@state = Date.today
-		@state = Date.new(@state.year, @state.mon,1)
-		@dayOfWeek = 1
-		updateHolidays()
+	def initialize(options)
+		if options[:month] and options[:year]
+			@state = Date.new(options[:year].to_i, options[:month].to_i)
+			@dayOfWeek = options[:dow] if options[:dow]
+			updateHolidays()
+			printCalender()
+		else
+			@state = Date.today
+			@state = Date.new(@state.year, @state.mon,1)
+			@dayOfWeek = 1
+
+
+		end
 	end
 
 	#class methods
@@ -112,6 +121,38 @@ class Calender
 				puts legends[i].to_s() + ' : ' + @holidays.values[i].to_s()
 			end
 		end
-
-	end
+	end #printCalender End
 end
+
+#option parser
+options = {}
+OptionParser.new do |opts|
+	opts.banner = "Usage: Calender.rb [options]"
+
+	opts.on("-m ", "Month") do | m|
+		#if m === (1..12)
+		#	puts "less"
+			options[:month] = m
+		#else
+		#	options[:month] = nil
+		#end
+	end
+
+	opts.on("-y ", "--year", "Year") do | y|
+		#if y
+			options[:year] = y
+		#else
+		#	options[:year] = nil
+		#end
+	end
+
+	opts.on("-w", "--dow", "Starting day of week") do |w|
+		if w>0 and w < 8 
+			options[:dow] = w  
+		else
+			options[:dow] = 1
+		end
+	end
+end.parse!
+
+Calender.new(options)
