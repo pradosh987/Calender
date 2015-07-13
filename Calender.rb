@@ -4,46 +4,26 @@ require 'date'
 
 class Calender
 
-	@@monthMap = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-
-	@@daysInMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30,31]
-
 	#constructor
 	def initialize()
 		@state = Date.today
 		@state = Date.new(@state.year, @state.mon,1)
 	end
 
-	#class methods
-	def Calender.mapMonth(m)
-		return @@monthMap[m-1]
-	end
-
-	def Calender.getDaysInMonth(month, year)
-		return 29 if month == 2 and Date.new(year).leap?
-		return @@daysInMonth[month]
-	end
-
 	#instance methods
-	#changes state to next month
-	def nextMonth()
-		@state = @state << -1
-	end
-
-	#changes state to previous month
-	def previousMonth()
-		@state = @state << 1
+	def change_month(i)
+		@state = @state << i
 	end
 
 	#prints the calender
-	def printCalender()
-		puts "\n\t " + Calender.mapMonth(@state.mon) 
+	def printCalender(before, on, after)
+		puts "\n\t " + Date::MONTHNAMES[@state.mon] 
 		masterCount = 1
 		dayCount = 1
-		totalDays = Calender.getDaysInMonth(@state.mon-1, @state.year)
-		
+		totalDays = Date.civil(@state.year, @state.mon, -1).mday
+
 		#printing month in console
-		for i in 0..4 
+		for i in 0..5 
 			for j in 0..6 
 				if masterCount < @state.cwday
 					masterCount+=1
