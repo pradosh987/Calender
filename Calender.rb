@@ -3,13 +3,6 @@
 require 'date'
 
 class Calender
-
-	@@monthMap = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-
-	@@daysInMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30,31]
-
-	@@days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-
 	attr_writer :dayOfWeek
 
 	#constructor
@@ -19,75 +12,59 @@ class Calender
 		@dayOfWeek = 1
 	end
 
-	#class methods
-	def Calender.mapMonth(m)
-		return @@monthMap[m-1]
-	end
+  def change_month(i)
+    @state = @state << i
+  end
 
-	def Calender.getDaysInMonth(month, year)
-		return 29 if month == 2 and Date.new(year).leap?
-		return @@daysInMonth[month]
-	end
+	 def print_calender(
+    print_func= nil, 
+    before_month = nil, 
+    before_week = nil,
+    after_week = nil,
+    after_month = nil)
+    master_count = 1
+    puts "\n\t\t" + Date::MONTHNAMES[@state.mon] + ' ' + @state.year.to_s() + "\n"
 
-	#instance methods
-	#changes internal state of Calender by specified month 
-	#+ve i increments month
-	#-vw i decrements month
-	def decrementMonth(i)
-		@state = @state << i
-	end
+    startDay = @state.cwday
+    if startDay == @dayOfWeek.to_i()
+      startDay = 1 
+    elsif @dayOfWeek.to_i < startDay
+      startDay = startDay - @dayOfWeek.to_i()+ 1
+    else  
+      startDay = 1 + 7 - (@dayOfWeek.to_i() - startDay).abs()
+    end
 
-	#prints the calender
-	def printCalender()
-		masterCount = 1
-		dayCount = 1
-		totalDays = Calender.getDaysInMonth(@state.mon-1, @state.year)
-		
-		#printing month in 
-		puts "\n\t " + Calender.mapMonth(@state.mon) + ' ' + @state.year.to_s()
-		puts "\n"
+    puts "\n"
+    t = @dayOfWeek.to_i() 
+    for i in 0..6
+      t = 0 if t > 6
+      printf("%7s",Date::ABBR_DAYNAMES[t].to_s) 
+      t+=1
+    end
 
-		startDay = @state.cwday
-		if startDay == @dayOfWeek.to_i()
-			startDay = 1 
-		elsif @dayOfWeek.to_i < startDay
-			startDay = startDay - @dayOfWeek.to_i()+ 1
-		elsif @dayOfWeek.to_i > startDay  
-			startDay = 1 + 7 - (@dayOfWeek.to_i() - startDay).abs()
-		end
+    puts "\n"
+    for i in 0..5 
+      for j in 0..6
+        print_func.call(startDay, master_count, @state)
+        master_count += 1
+      end
+      puts "\n"
+      break if master_count > (startDay + (Date.civil(@state.year, @state.mon, -1).mday))
+    end
+  end
 
-		prevMonth = @state << 1
-		prevMonthDays = Calender.getDaysInMonth(prevMonth.mon-1, prevMonth.year)- startDay + 2
-		temp =1
-
-		#print days
-		t=@dayOfWeek.to_i() -1
-		for i in 0..6
-			t = 0 if t > 6
-			print @@days[t].to_s() + ' ' 
-			t+=1
-		end
-		print "\n"
-		for i in 0..5 
-			for j in 0..6 
-				if masterCount < startDay
-					masterCount+=1
-					print prevMonthDays.to_s() + '* ' 
-					prevMonthDays += 1
-					next
-				elsif if dayCount > totalDays
-					print temp.to_s() + '* '
-					temp += 1	
-				end
-				else
-					print dayCount.to_s() + '  '
-					print ' ' if dayCount<10
-					dayCount +=1
-				end
-			end
-			break if dayCount > totalDays
-			puts "\n"
-		end
-		puts "\n"
-	end
+  def print_calender_with_dow()
+  	print_func = lambda do |start, count, date|
+    	present_month = Date.civil(date.year, date.mon, -1)
+    	previous_month = present_month << 1
+ 	   if(count<start)
+  	    printf("%7s",'*' + (previous_month.mday - start + count + 1).to_s)
+    	elsif (count-start) < present_month.mday
+      	printf("%7s",(count-start+1))
+    	else 
+      	printf("%7s",'*' +(count-start+1-present_month.mday).to_s)
+    	end
+  	end
+  	print_calender(print_func)
+  end
 end
