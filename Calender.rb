@@ -1,3 +1,7 @@
+# REVIEW -- better handling of command line arguments and graceful error
+# handling.
+
+
 #imports
 require 'date'
 require 'optparse'
@@ -75,6 +79,7 @@ class Calender
 		temp =1
 
 
+		# REVIEW -- use String#next instead of this
 		legends = Array.new(('a'..'b').to_a())
 		legendCount = 0
 		#print days
