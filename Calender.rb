@@ -1,6 +1,7 @@
+#Run: ruby Calender.rb -m 07 -y 2015
+
 require 'date'
 require 'optparse'
-
 
 class Calender
 
@@ -16,13 +17,8 @@ class Calender
 	end
 
 	def get_start_day()
-		start_day = @date.cwday
-		if start_day == @day_of_week
-			start_day = 1
-		else 
-			start_day = @day_of_week.to_i < start_day.to_i ? (start_day - @day_of_week.to_i()+ 1) : (1 + 7 - (@day_of_week.to_i() - start_day).abs())
-		end
-		return start_day
+		return 1	if  @date.cwday == @day_of_week 
+		return @day_of_week.to_i < @date.cwday.to_i ? (@date.cwday - @day_of_week.to_i()+ 1) : (1 + 7 - (@day_of_week.to_i() - @date.cwday).abs())
 	end
 end
 
@@ -51,25 +47,13 @@ def print_calender(cal, print_func,control_hooks = nil, before_month = nil, befo
 		#call to a hook
 		before_week.call(grid_count,cal,i) if before_week
 		for j in 0..6
-			temp = hook_controler(grid_count,cal,control_hooks)
-			##fallback logic in case of null
-			if temp == nil
-				#if(grid_count < start_day)
-				#	temp = previous_month.mday - start + count + 1 
-				#elsif (grid_count - start_day) < con.date.mday
-				#	temp = count-start+1		
-				#else 
-				#	temp = count-start+1-con.date.mday
-				#end
-			end #fallback logic ends
-
 			#call to print hook
-			print_func.call(temp)
+			print_func.call(hook_controler(grid_count,cal,control_hooks))
 			grid_count += 1
 		end
 		puts "\n"
 		break if grid_count > (start_day + (Date.civil(cal.date.year, cal.date.mon, -1).mday))
-		after_week.call(grid_count,cal,i)if after_week
+		after_week.call(grid_count,cal,i) if after_week
 	end
 	after_month(cal) if after_month
 end
@@ -84,14 +68,13 @@ def hook_controler(grid_count,cal, procedures)
 	else 
 		temp = ''
 	end
-	#puts temp
-	temp2 = 'test' 
+	
 	if procedures
 		procedures.each do |p| 
 			temp = p.call(temp,grid_count,cal)
 		end
 	end
-	#puts temp
+	
   return temp
 end
 
@@ -103,7 +86,7 @@ def calender_controller(options = nil)
 		cal = Calender.new
 	end
 
-	#switches
+	#printing hook
 	print_func = lambda { |value|  printf("%7s", value.to_s) }
 
 	before_month = nil
@@ -116,6 +99,7 @@ def calender_controller(options = nil)
 	present_month = Date.civil(cal.date.year, cal.date.mon, -1)
 	previous_month = present_month << 1
 	start = cal.get_start_day
+	
 	#hook to print previous and next month dates with *
 	previous_month_dates_hook = lambda do |value,grid_count,cal|
 		if(grid_count < start)
@@ -126,8 +110,10 @@ def calender_controller(options = nil)
 		value
 	end
 
+	#push hook to process
 	control_hooks.push(previous_month_dates_hook)
 
+	#add more hooks here
 
 
 	print_calender(cal,print_func,control_hooks,before_month,before_week,after_week,after_month)
