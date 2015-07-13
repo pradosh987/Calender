@@ -24,6 +24,9 @@ class Holiday
 		return holidays
 	end
 
+	def self.get_holiday(date)
+		return @@holidays[date.year][date.mon][date.mday]
+	end
 
 
 	def self.getDefaultHolidays(date)
