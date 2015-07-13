@@ -26,10 +26,10 @@ class Holiday
 
 	def self.get_holiday(date)
 		begin
-		hol = @@holidays[date.year][date.mon][date.mday]
-	rescue
-		nil
-	end
+			hol = @@holidays[date.year][date.mon][date.mday]
+		rescue
+			nil
+		end
 	end
 
 
