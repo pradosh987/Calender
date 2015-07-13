@@ -1,13 +1,16 @@
 #puts "hello world!"
 #imports
+
+
 require 'date'
 
 class Calender
 
+	# REVIEW -- you already have access to a fully functional date library. Why
+	# do you need to define this again? All these three things are easily
+	# obtainable from the Ruby Date library. No point in re-inventing the wheel.
 	@@monthMap = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-
 	@@daysInMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30,31]
-
 	@@days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
 	attr_writer :dayOfWeek
@@ -33,6 +36,11 @@ class Calender
 	#changes internal state of Calender by specified month 
 	#+ve i increments month
 	#-vw i decrements month
+
+	# REVIEW: badly named function. decrementMonth means that the month is
+	# always going to decrease, however, you're also allowing the months to
+	# increase from this method. It should probably be called change_month. Also
+	# Ruby convention is to use snake_case not camelCase for naming.
 	def decrementMonth(i)
 		@state = @state << i
 	end
@@ -47,6 +55,9 @@ class Calender
 		puts "\n\t " + Calender.mapMonth(@state.mon) + ' ' + @state.year.to_s()
 		puts "\n"
 
+
+		# REVIEW -- does this really need a conditional? Aren't all these the
+		# special cases of some general formula?
 		startDay = @state.cwday
 		if startDay == @dayOfWeek.to_i()
 			startDay = 1 
