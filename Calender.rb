@@ -1,6 +1,7 @@
 #imports
 require 'date'
 require 'optparse'
+load 'Holiday.rb'
 load 'Holidays.rb'
 
 class Calender
@@ -19,12 +20,17 @@ class Calender
 			printFlag = true
 			@state = Date.new(options[:year].to_i, options[:month].to_i)
 			@dayOfWeek = options[:dow] if options[:dow]
+			@holidays = Holiday.readFromFile(options[:holidays]) if options[:holidays]
+
+			#updateHolidays
 		else
 			@state = Date.today
 			@state = Date.new(@state.year, @state.mon,1)
 			@dayOfWeek = 1
+			@holidays = Holiday.getDefaultHolidays(@state)
+			#updateHolidays()
 		end
-			updateHolidays()
+			
 			printCalender if printFlag
 	end
 
@@ -97,13 +103,20 @@ class Calender
 					temp += 1	
 				end
 				else
-					print dayCount.to_s()  
-					if @holidays and @holidays[dayCount]
-						print legends[legendCount].to_s()+'   ' 
-						legendCount+=1
-					else 
-						print '    '
-					end
+					print dayCount.to_s() 
+					@holidays.each do |h|
+						if dayCount==h.date.mday
+							print h.legend.to_s + '   '
+						else 
+							print '    '
+						end
+					end 
+					#if @holidays and @holidays[dayCount]
+					#	print legends[legendCount].to_s()+'   ' 
+					#	legendCount+=1
+					#else 
+					#	print '    '
+					#end
 					print ' ' if dayCount<10
 					dayCount +=1
 				end
@@ -114,6 +127,7 @@ class Calender
 		puts "\n\n"
 
 		#print holiday legends
+
 		if @holidays
 			puts "\nLegends: "
 			for i in 0..@holidays.length-1 
@@ -142,6 +156,12 @@ OptionParser.new do |opts|
 		options[:dow] = 1
 		options[:dow] = w  if w.to_i.between?(1, 7)
 	end
+
+	opts.on("-h ", "--holidays", "File with holidays") do | h|
+		options[:holidays] = nil
+		options[:holidays] = h if h
+	end
+
 end.parse!
 
 Calender.new(options)
