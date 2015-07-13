@@ -8,6 +8,8 @@ class Calender
 
 	attr_writer :dayOfWeek
 
+	@@legend_iter = 'a';
+
 	#constructor
 	def initialize(options = nil)
 		if options and options[:month] and options[:year]
@@ -33,10 +35,6 @@ class Calender
 		@holidays = Holidays.getInstance().getHolidaysOfMonth(@state)
 	end
 
-	#instance methods
-	#changes internal state of Calender by specified month 
-	#+ve i increments month
-	#-ve i decrements month
 	def change_month(i)
 		@state = @state << i
 		updateHolidays()
@@ -48,11 +46,10 @@ class Calender
 		before_week = nil,
 		after_week = nil,
 		after_month = nil)
+		@@legend_iter = 'a'
 	 	print_func = @@print_basic if print_func == nil
+	 	print_func = @@calender_legends
 		
-
-		
-
 		master_count = 1
 		puts "\n\t\t" + Date::MONTHNAMES[@state.mon] + ' ' + @state.year.to_s() + "\n"
 
@@ -76,12 +73,13 @@ class Calender
 		puts "\n"
 		for i in 0..5 
 			for j in 0..6
-				@@print_basic.call(startDay, master_count, @state)
+				print_func.call(startDay, master_count, @state)
 				master_count += 1
 			end
 			puts "\n"
 			break if master_count > (startDay + (Date.civil(@state.year, @state.mon, -1).mday))
 		end
+		after_month.call(@state)
 	end
 
 
@@ -101,18 +99,38 @@ class Calender
 		present_month = Date.civil(date.year, date.mon, -1)
 		previous_month = present_month << 1
 
-		
+		print_day = lambda do |value| 
+		 printf("%7s", value.to_s)
+		end
 
 		if(count<start)
-			printf("%7s",'*' + (previous_month.mday - start + count + 1).to_s)
+			print_day.call('*' + (previous_month.mday - start + count + 1).to_s)
 		elsif (count-start) < present_month.mday
-			printf("%7s",(count-start+1))
+			temp = count-start+1
+			hol = Holiday.get_holiday(Date.new(date.year, date.mon,temp))
+			if hol
+				temp = temp.to_s + @@legend_iter
+				@@legend_iter = @@legend_iter.next
+			end
+			print_day.call(temp)
 		else 
-			printf("%7s",'*' +(count-start+1-present_month.mday).to_s)
+			print_day.call('*' +(count-start+1-present_month.mday).to_s)
 		end
 	end
 
+	@@print_legends = lambda do |date|
+		hol = Holiday.getDefaultHolidays(date)
+		if hol
+			puts "\nLegends: "
+			hol.each do |l|
+				puts l.legend.to_s + " : " + l.description
+			end
+		end
+	end
 
+	def print_with_legends()
+		print_calender(@@calender_legends, nil,nil,nil, @@print_legends)
+	end
 
 
 	#DEPRECIATED
@@ -184,22 +202,6 @@ class Calender
 			puts "\n"
 		end
 		puts "\n\n"
-
-		#print holiday legends
-
-		if @holidays
-			puts "\nLegends: "
-			@holidays.each do |l|
-				puts l.legend.to_s + " : " + l.description
-			end
-		end
-
-		#if @holidays
-		#	puts "\nLegends: "
-		#	for i in 0..@holidays.length-1 
-		#		puts legends[i].to_s() + ' : ' + @holidays.values[i].to_s()
-		#	end
-		#end
 	end #printCalender End
 end
 

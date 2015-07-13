@@ -25,18 +25,27 @@ class Holiday
 	end
 
 	def self.get_holiday(date)
-		return @@holidays[date.year][date.mon][date.mday]
+		begin
+		hol = @@holidays[date.year][date.mon][date.mday]
+	rescue
+		nil
 	end
+	end
+
 
 
 	def self.getDefaultHolidays(date)
 		holidays = Array.new
 		legends = Array.new(('a'..'z').to_a())
 		legendCount = 0
-    @@holidays[date.year][date.mon].each do |var|
-    	hol = Holiday.new(Date.new(date.year, date.mon,var[0].to_i), var[1], legends[legendCount])
-    	legendCount += 1
-    	holidays.push(hol)
+		var = @@holidays[date.year][date.mon]
+		if var
+	    var.each do |var|
+  	  	hol = Holiday.new(Date.new(date.year, date.mon,var[0].to_i), var[1], legends[legendCount])
+    		legendCount += 1
+    		holidays.push(hol)
+    	end
+    else return nil
     end
     return holidays
 	end
