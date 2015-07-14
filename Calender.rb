@@ -151,11 +151,11 @@ def calender_controller(options = nil)
 		end
 	end
 
-	control_hooks.push(holiday_hook) if not options[:hol]
+	control_hooks.push(holiday_hook) if options[:hol]
 
 	#add more hooks here
 
-	after_month = print_legend_hook	if not options[:hol]
+	after_month = print_legend_hook	if options[:hol]
 	print_calender(cal,print_func,control_hooks,before_month,before_week,after_week,after_month)
 end
 
