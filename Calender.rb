@@ -35,7 +35,6 @@ def print_calender(cal, print_func,control_hooks = nil, before_month = nil, befo
 
 	#compute start date
 	start_day = cal.get_start_day
-
 	t = cal.day_of_week.to_i() 
 	for i in 0..6
 		t = 0 if t > 6
@@ -111,7 +110,9 @@ def calender_controller(options = nil)
 	end
 
 	#push hook to process
-	control_hooks.push(previous_month_dates_hook)
+	control_hooks.push(previous_month_dates_hook) if not options[:other_dates]
+
+
 
 	#add more hooks here
 
@@ -143,6 +144,11 @@ OptionParser.new do |opts|
 	opts.on("-h ", "--holidays", "File with holidays") do | h|
 		options[:holidays] = nil
 		options[:holidays] = h if h
+	end
+
+	options[:other_dates] = false
+	opts.on("-o", "--dates", "Disable month overlap") do
+		options[:other_dates] = true
 	end
 end.parse!
 
