@@ -22,6 +22,14 @@ class Calender
 	end
 end
 
+$holidays ={
+	'2015-7-19'=>'Eid',
+	'2015-7-24'=>'Also a Holiday'
+}
+
+$holiday_legend = 'a'
+$holiday_description_array = Array.new
+
 def print_calender(cal, print_func,control_hooks = nil, before_month = nil, before_week=nil,after_week=nil, after_month= nil)
 
 	grid_count = 1;
@@ -54,7 +62,7 @@ def print_calender(cal, print_func,control_hooks = nil, before_month = nil, befo
 		break if grid_count > (start_day + (Date.civil(cal.date.year, cal.date.mon, -1).mday))
 		after_week.call(grid_count,cal,i) if after_week
 	end
-	after_month(cal) if after_month
+	after_month.call(cal) if after_month
 end
 
 def hook_controler(grid_count,cal, procedures)
@@ -112,11 +120,42 @@ def calender_controller(options = nil)
 	#push hook to process
 	control_hooks.push(previous_month_dates_hook) if not options[:other_dates]
 
+	holiday_hook = lambda do |value, grid_count,cal|
+		if(grid_count - start) < present_month.mday
+			temp = grid_count-start + 1
+			if temp == 1
+				$holiday_legend = 'a'
+				$legend_array = Array.new
+			end 
+			#puts 'here:' + temp.to_s
+			date = cal.date.year.to_s+'-'+cal.date.mon.to_s+'-'+temp.to_s
+			if $holidays[date]
+				temp = (value.to_s + $holiday_legend.to_s) 
+				$holiday_legend = $holiday_legend.next
+				$holiday_description_array.push($holidays[date])
+				#puts $holiday_legend
+			end
+			return temp
+			#puts 'here:' +(cal.date.year.to_s+'-'+cal.date.mon.to_s+'-'+temp.to_s)
+		end
+		return value
+	end
 
+	print_legend_hook = lambda do |cal|
+		if $holiday_description_array
+			legend = 'a'
+			$holiday_description_array.each do | values|
+				puts legend.to_s + ':' + values.to_s
+				legend = legend.next()
+			end
+		end
+	end
+
+	control_hooks.push(holiday_hook) if not options[:hol]
 
 	#add more hooks here
 
-
+	after_month = print_legend_hook	if not options[:hol]
 	print_calender(cal,print_func,control_hooks,before_month,before_week,after_week,after_month)
 end
 
@@ -149,6 +188,11 @@ OptionParser.new do |opts|
 	options[:other_dates] = false
 	opts.on("-o", "--dates", "Disable month overlap") do
 		options[:other_dates] = true
+	end
+
+	options[:hol] = false
+	opts.on("-h", "--dates", "Disable holidays") do
+		options[:hol] = true
 	end
 end.parse!
 
