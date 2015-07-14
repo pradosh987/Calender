@@ -105,6 +105,7 @@ def calender_controller(options = nil)
 	##hooks
 	present_month = Date.civil(cal.date.year, cal.date.mon, -1)
 	previous_month = present_month << 1
+	previous_month = Date.civil(present_month.year, previous_month.mon, -1)
 	start = cal.get_start_day
 	
 	#hook to print previous and next month dates with *
